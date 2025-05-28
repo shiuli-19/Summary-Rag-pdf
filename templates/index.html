@@ -1,0 +1,703 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Summarizer & Query Tool</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2980b9;
+        --accent-color: #e74c3c;
+        --text-color: #333;
+        --background-color: #f9f9f9;
+        --card-bg: #ffffff;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      header h1 {
+        color: var(--primary-color);
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      header p {
+        color: #666;
+        font-size: 1.1rem;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 25px;
+        margin-bottom: 30px;
+        transition: var(--transition);
+      }
+
+      .card:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .card h2 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .card h2 i {
+        margin-right: 10px;
+      }
+
+      .upload-form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .file-upload {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+      }
+
+      .file-input-container {
+        position: relative;
+        margin-bottom: 15px;
+      }
+
+      .file-input {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 2;
+      }
+
+      .file-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        background-color: #f0f0f0;
+        border: 2px dashed #ccc;
+        border-radius: var(--border-radius);
+        text-align: center;
+        color: #666;
+        transition: var(--transition);
+      }
+
+      .file-label:hover,
+      .file-input:focus + .file-label {
+        border-color: var(--primary-color);
+        background-color: #e6f7ff;
+      }
+
+      .file-label i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+      }
+
+      .file-name {
+        margin-top: 5px;
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .option-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .option-group {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .option-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #555;
+      }
+
+      select,
+      input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: var(--border-radius);
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        transition: var(--transition);
+      }
+
+      select:focus,
+      input[type="number"]:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+
+      .button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .button:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .button i {
+        margin-right: 8px;
+      }
+
+      .progress-container {
+        display: none;
+        margin-top: 20px;
+      }
+
+      .progress-bar {
+        height: 10px;
+        background-color: #eee;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+
+      .progress {
+        height: 100%;
+        background-color: var(--primary-color);
+        width: 0%;
+        transition: width 0.5s;
+      }
+
+      .status {
+        text-align: center;
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .results {
+        display: none;
+      }
+
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .results-title {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+      }
+
+      .file-info {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+      }
+
+      .file-info i {
+        margin-right: 5px;
+      }
+
+      .summary-container {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary-color);
+        margin-bottom: 20px;
+      }
+
+      .summary-text {
+        line-height: 1.7;
+        font-size: 1rem;
+      }
+
+      .query-container {
+        margin-top: 25px;
+      }
+
+      .query-input {
+        width: 100%;
+        padding: 12px;
+        border-radius: var(--border-radius);
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        transition: var(--transition);
+      }
+
+      .query-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+
+      .answer-container {
+        display: none;
+        margin-top: 20px;
+      }
+
+      .answer-box {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--accent-color);
+      }
+
+      .answer-text {
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+
+      .sources-container {
+        margin-top: 15px;
+      }
+
+      .sources-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .source-item {
+        background-color: #fff;
+        padding: 10px;
+        border-radius: var(--border-radius);
+        margin-bottom: 10px;
+        border: 1px solid #eee;
+        font-size: 0.9rem;
+      }
+
+      .loader {
+        display: none;
+        border: 3px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 3px solid var(--primary-color);
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        color: var(--accent-color);
+        background-color: #ffeaea;
+        padding: 10px;
+        border-radius: var(--border-radius);
+        margin-top: 15px;
+        display: none;
+      }
+
+      .model-info {
+        background-color: #e8f4fc;
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-top: 30px;
+      }
+
+      .model-info h3 {
+        color: var(--primary-color);
+        margin-bottom: 10px;
+      }
+
+      .model-info p {
+        margin-bottom: 10px;
+      }
+
+      .model-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      .model-table th,
+      .model-table td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+      }
+
+      .model-table th {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .model-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        .card {
+          padding: 15px;
+        }
+
+        header h1 {
+          font-size: 2rem;
+        }
+
+        .option-row {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><i class="fas fa-file-pdf"></i> PDF Summarizer & Query Tool</h1>
+        <p>
+          Upload your PDF document to generate a summary and ask questions about
+          its content
+        </p>
+      </header>
+
+      <div class="card">
+        <h2><i class="fas fa-upload"></i> Upload PDF</h2>
+        <form id="uploadForm" class="upload-form">
+          <div class="file-upload">
+            <div class="file-input-container">
+              <input
+                type="file"
+                id="pdfFile"
+                class="file-input"
+                accept=".pdf"
+              />
+              <label for="pdfFile" class="file-label">
+                <i class="fas fa-file-upload"></i>
+                <span>Choose a PDF file or drag it here</span>
+              </label>
+            </div>
+            <div class="file-name" id="fileName">No file selected</div>
+          </div>
+
+          <div class="option-row">
+            <div class="option-group">
+              <label for="chunkSize">Chunk Size</label>
+              <select id="chunkSize" name="chunk_size">
+                <option value="256">Small (256 tokens)</option>
+                <option value="512" selected>Medium (512 tokens)</option>
+                <option value="768">Large (768 tokens)</option>
+                <option value="1024">Extra Large (1024 tokens)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="uploadButton" class="button" disabled>
+            <i class="fas fa-rocket"></i> Process PDF
+          </button>
+        </form>
+
+        <div id="progressContainer" class="progress-container">
+          <div class="progress-bar">
+            <div id="progress" class="progress"></div>
+          </div>
+          <p id="status" class="status">Processing PDF...</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+      </div>
+
+      <div id="results" class="card results">
+        <div class="results-header">
+          <h2><i class="fas fa-file-alt"></i> Summary</h2>
+          <div id="fileInfo" class="file-info">
+            <i class="fas fa-file-pdf"></i>
+            <span id="documentName">document.pdf</span>
+          </div>
+        </div>
+
+        <div class="summary-container">
+          <p id="summaryText" class="summary-text">Loading summary...</p>
+        </div>
+
+        <div class="query-container">
+          <h2><i class="fas fa-search"></i> Ask a Question</h2>
+          <input
+            type="text"
+            id="queryInput"
+            class="query-input"
+            placeholder="Ask a question about the document..."
+          />
+          <button id="queryButton" class="button">
+            <i class="fas fa-question-circle"></i> Get Answer
+          </button>
+        </div>
+
+        <div id="loaderQuery" class="loader"></div>
+
+        <div id="answerContainer" class="answer-container">
+          <div class="answer-box">
+            <p id="answerText" class="answer-text"></p>
+          </div>
+
+          <div class="sources-container">
+            <h3 class="sources-title">Sources:</h3>
+            <div id="sourcesList"></div>
+          </div>
+        </div>
+      </div>
+
+
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const uploadForm = document.getElementById("uploadForm");
+        const pdfFileInput = document.getElementById("pdfFile");
+        const fileName = document.getElementById("fileName");
+        const uploadButton = document.getElementById("uploadButton");
+        const progressContainer = document.getElementById("progressContainer");
+        const progress = document.getElementById("progress");
+        const status = document.getElementById("status");
+        const results = document.getElementById("results");
+        const fileInfo = document.getElementById("fileInfo");
+        const documentName = document.getElementById("documentName");
+        const summaryText = document.getElementById("summaryText");
+        const errorMessage = document.getElementById("errorMessage");
+
+        const queryInput = document.getElementById("queryInput");
+        const queryButton = document.getElementById("queryButton");
+        const loaderQuery = document.getElementById("loaderQuery");
+        const answerContainer = document.getElementById("answerContainer");
+        const answerText = document.getElementById("answerText");
+        const sourcesList = document.getElementById("sourcesList");
+
+        let currentDocId = null;
+
+        // Handle file selection
+        pdfFileInput.addEventListener("change", function () {
+          if (this.files && this.files[0]) {
+            const file = this.files[0];
+            if (file.type === "application/pdf") {
+              fileName.textContent = file.name;
+              uploadButton.disabled = false;
+              errorMessage.style.display = "none";
+            } else {
+              fileName.textContent = "Invalid file type. Please select a PDF.";
+              uploadButton.disabled = true;
+              errorMessage.style.display = "block";
+              errorMessage.textContent = "Please select a valid PDF file.";
+            }
+          } else {
+            fileName.textContent = "No file selected";
+            uploadButton.disabled = true;
+          }
+        });
+
+        // Handle form submission
+        uploadForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          if (!pdfFileInput.files || !pdfFileInput.files[0]) {
+            return;
+          }
+
+          const file = pdfFileInput.files[0];
+          const formData = new FormData();
+          formData.append("file", file);
+
+          // Add chunk size option
+          const chunkSize = document.getElementById("chunkSize").value;
+          formData.append("chunk_size", chunkSize);
+
+          // Reset UI
+          errorMessage.style.display = "none";
+          results.style.display = "none";
+          uploadButton.disabled = true;
+
+          // Show progress
+          progressContainer.style.display = "block";
+          progress.style.width = "0%";
+          status.textContent = "Processing PDF...";
+
+          // Simulate progress (since we can't track real progress server-side in this simple app)
+          let progressValue = 0;
+          const progressInterval = setInterval(() => {
+            progressValue += Math.random() * 3;
+            if (progressValue > 90) {
+              progressValue = 90;
+              clearInterval(progressInterval);
+            }
+            progress.style.width = progressValue + "%";
+          }, 200);
+
+          // Send request to server
+          fetch("/upload", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              clearInterval(progressInterval);
+
+              if (data.error) {
+                // Show error
+                errorMessage.style.display = "block";
+                errorMessage.textContent = data.error;
+                progressContainer.style.display = "none";
+                uploadButton.disabled = false;
+                return;
+              }
+
+              // Complete progress bar
+              progress.style.width = "100%";
+              status.textContent = `Processed in ${data.processing_time}`;
+
+              // Update UI with summary
+              currentDocId = data.doc_id;
+              documentName.textContent = data.filename;
+              summaryText.textContent = data.summary;
+
+              // Show results
+              setTimeout(() => {
+                progressContainer.style.display = "none";
+                results.style.display = "block";
+                uploadButton.disabled = false;
+              }, 500);
+            })
+            .catch((error) => {
+              clearInterval(progressInterval);
+              console.error("Error:", error);
+              errorMessage.style.display = "block";
+              errorMessage.textContent =
+                "An error occurred while processing the PDF. Please try again.";
+              progressContainer.style.display = "none";
+              uploadButton.disabled = false;
+            });
+        });
+
+        // Handle query submission
+        queryButton.addEventListener("click", function () {
+          const query = queryInput.value.trim();
+
+          if (!query || !currentDocId) {
+            return;
+          }
+
+          // Reset UI
+          answerContainer.style.display = "none";
+          queryButton.disabled = true;
+          loaderQuery.style.display = "block";
+
+          // Prepare form data
+          const formData = new FormData();
+          formData.append("query", query);
+          formData.append("doc_id", currentDocId);
+
+          // Send request to server
+          fetch("/query", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.error) {
+                throw new Error(data.error);
+              }
+
+              // Update UI with answer
+              answerText.textContent = data.answer;
+
+              // Display sources
+              sourcesList.innerHTML = "";
+              data.relevant_chunks.forEach((chunk, index) => {
+                const sourceItem = document.createElement("div");
+                sourceItem.className = "source-item";
+                sourceItem.textContent = chunk;
+                sourcesList.appendChild(sourceItem);
+              });
+
+              // Show answer
+              loaderQuery.style.display = "none";
+              answerContainer.style.display = "block";
+              queryButton.disabled = false;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              loaderQuery.style.display = "none";
+              queryButton.disabled = false;
+              alert(
+                "An error occurred while processing your query. Please try again."
+              );
+            });
+        });
+
+        // Allow pressing Enter to submit query
+        queryInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter" && !queryButton.disabled) {
+            queryButton.click();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+flask
+PyMuPDF
+numpy
+Pillow
+pytesseract
+torch
+transformers
+faiss-cpu
+langchain
+werkzeug
